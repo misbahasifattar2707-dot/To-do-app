@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Todo App - Learn Flask Step by Step
 
 A complete Todo application built in 8 parts to learn Flask, databases, authentication, and more.
@@ -141,3 +142,6 @@ Look at the bottom of each `app.py` file!
 ---
 
 Happy Learning!
+=======
+# To-do-app
+>>>>>>> 68578ca126b420cae86b72b68cd6940f3815cfc5
