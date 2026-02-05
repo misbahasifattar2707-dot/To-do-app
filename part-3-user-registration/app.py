@@ -66,12 +66,21 @@ def api_register():
     if not username or not email or not password:
         return jsonify({'error': 'All fields are required'}), 400
 
-    # Check if user already exists
+   
+    if len(password) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+    if not username.isalnum():
+        return jsonify({'error': 'Username must be alphanumeric'}), 400
+    if '@' not in email:
+        return jsonify({'error': 'Invalid email format'}), 400
+     
+     # Check if user already exists
     if User.query.filter_by(email=email).first():
         return jsonify({'error': 'Email already registered'}), 400
 
     if User.query.filter_by(username=username).first():
         return jsonify({'error': 'Username already taken'}), 400
+    
 
     # Create new user
     # NOTE: We're storing password directly here (NOT secure!)
