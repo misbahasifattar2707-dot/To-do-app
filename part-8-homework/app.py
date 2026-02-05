@@ -114,7 +114,7 @@ def create_todo():
         # ===========================================
         # HOMEWORK: Add this line below
         # ===========================================
-        # priority=data.get('priority', 'medium')
+        priority=data.get('priority', 'medium')
         # ===========================================
     )
 

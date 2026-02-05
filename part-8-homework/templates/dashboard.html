@@ -1,3 +1,4 @@
+<!-- SOLUTION - dashboard.html (completed) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,16 +35,12 @@
                             <input type="text" class="form-control" id="task-input"
                                    placeholder="What needs to be done?" required>
 
-                            <!-- ===========================================
-                                 STEP 4: Uncomment the select below
-                                 =========================================== -->
-                            <!--
+                            <!-- STEP 4: Uncommented the select dropdown -->
                             <select class="form-select" id="priority-input" style="width: 130px;">
                                 <option value="low">Low</option>
                                 <option value="medium" selected>Medium</option>
                                 <option value="high">High</option>
                             </select>
-                            -->
 
                             <button type="submit" class="btn btn-success">Add</button>
                         </form>
@@ -105,28 +102,21 @@
             const taskContent = input.value.trim();
             if (!taskContent) return;
 
-            // ===========================================
-            // STEP 5: Change the line below to include priority
-            // ===========================================
-            // BEFORE: await api('/api/todos', 'POST', { task_content: taskContent });
-            // AFTER:  await api('/api/todos', 'POST', { task_content: taskContent, priority: document.getElementById('priority-input').value });
-            // ===========================================
-
-            await api('/api/todos', 'POST', { task_content: taskContent });
+            // STEP 5: Changed to include priority
+            await api('/api/todos', 'POST', {
+                task_content: taskContent,
+                priority: document.getElementById('priority-input').value
+            });
             input.value = '';
             loadTodos();
         });
 
-        // ===========================================
-        // STEP 6: Uncomment this function
-        // ===========================================
-        /*
+        // STEP 6: Uncommented this function
         function getPriorityBadge(priority) {
             const colors = { high: 'danger', medium: 'warning', low: 'success' };
             const textClass = priority === 'medium' ? 'text-dark' : '';
             return `<span class="badge bg-${colors[priority]} ${textClass} priority-badge">${priority.toUpperCase()}</span>`;
         }
-        */
 
         async function loadTodos() {
             const data = await api('/api/todos');
@@ -143,12 +133,7 @@
                                ${todo.is_completed ? 'checked' : ''}
                                onchange="toggleTodo(${todo.id}, this.checked)">
 
-                        <!-- ===========================================
-                             STEP 7: Add priority badge here
-                             Change the line below:
-                             BEFORE: (empty)
-                             AFTER:  ${getPriorityBadge(todo.priority)}
-                             =========================================== -->
+                        ${getPriorityBadge(todo.priority)}
 
                         <span class="todo-text">${escapeHtml(todo.task_content)}</span>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteTodo(${todo.id})">Delete</button>

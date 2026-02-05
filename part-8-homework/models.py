@@ -35,7 +35,7 @@ class Todo(db.Model):
     # ===========================================
     # STEP 1: Add this line below
     # ===========================================
-    # priority = db.Column(db.String(10), default='medium')
+    priority = db.Column(db.String(10), default='medium')
     # ===========================================
 
     def to_dict(self):
@@ -48,6 +48,6 @@ class Todo(db.Model):
             # ===========================================
             # STEP 2: Add this line below
             # ===========================================
-            # 'priority': self.priority
+            'priority': self.priority
             # ===========================================
         }
