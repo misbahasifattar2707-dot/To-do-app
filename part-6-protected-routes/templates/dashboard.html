@@ -54,98 +54,76 @@
     </div>
 
     <script>
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || 'null');
+const token = localStorage.getItem('token');
+if (!token) {
+    window.location.href = '/login';
+}
 
-        if (!token || !user) {
-            window.location.href = '/login';
+loadTodos();
+
+document.getElementById('add-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const taskContent = document.getElementById('task-input').value;
+
+    await fetch('/api/todos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            task_content: taskContent
+        })
+    });
+
+    document.getElementById('task-input').value = '';
+    loadTodos();
+});
+
+async function loadTodos() {
+    const res = await fetch('/api/todos', {
+        headers: {
+            'Authorization': 'Bearer ' + token
         }
+    });
 
-        document.getElementById('user-info').textContent = `Hello, ${user.username}`;
+    const data = await res.json();
+    const todoList = document.getElementById('todo-list');
 
-        // Helper function to make authenticated API calls
-        async function api(url, method = 'GET', body = null) {
-            const options = {
-                method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,  // Send token!
-                    'Content-Type': 'application/json'
-                }
-            };
-            if (body) options.body = JSON.stringify(body);
+    todoList.innerHTML = data.todos.map(todo => `
+        <div class="p-3 border-bottom">
+            <input type="checkbox"
+                ${todo.is_completed ? 'checked' : ''}
+                onchange="toggleTodo(${todo.id}, this.checked)">
+            ${todo.task_content}
+            <button class="btn btn-sm btn-danger float-end"
+                onclick="deleteTodo(${todo.id})">Delete</button>
+        </div>
+    `).join('');
+}
 
-            const res = await fetch(url, options);
+async function toggleTodo(id, status) {
+    await fetch(`/api/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ is_completed: status })
+    });
+    loadTodos();
+}
 
-            // Handle expired/invalid token
-            if (res.status === 401) {
-                localStorage.clear();
-                window.location.href = '/login';
-                return null;
-            }
-
-            return await res.json();
+async function deleteTodo(id) {
+    await fetch(`/api/todos/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': 'Bearer ' + token
         }
+    });
+    loadTodos();
+}
+</script>
 
-        // Load todos on page load
-        loadTodos();
-
-        // Add todo form
-        document.getElementById('add-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const input = document.getElementById('task-input');
-            const taskContent = input.value.trim();
-            if (!taskContent) return;
-
-            await api('/api/todos', 'POST', { task_content: taskContent });
-            input.value = '';
-            loadTodos();
-        });
-
-        async function loadTodos() {
-            const data = await api('/api/todos');
-            if (!data) return;
-
-            const todoList = document.getElementById('todo-list');
-
-            if (data.todos.length === 0) {
-                todoList.innerHTML = '<div class="text-center py-4 text-muted">No tasks yet! Add one above.</div>';
-            } else {
-                todoList.innerHTML = data.todos.map(todo => `
-                    <div class="todo-item ${todo.is_completed ? 'completed' : ''}" data-id="${todo.id}">
-                        <input type="checkbox" class="form-check-input"
-                               ${todo.is_completed ? 'checked' : ''}
-                               onchange="toggleTodo(${todo.id}, this.checked)">
-                        <span class="todo-text">${escapeHtml(todo.task_content)}</span>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteTodo(${todo.id})">Delete</button>
-                    </div>
-                `).join('');
-            }
-
-            const completed = data.todos.filter(t => t.is_completed).length;
-            document.getElementById('task-count').textContent = `${completed}/${data.todos.length}`;
-        }
-
-        async function toggleTodo(id, isCompleted) {
-            await api(`/api/todos/${id}`, 'PUT', { is_completed: isCompleted });
-            loadTodos();
-        }
-
-        async function deleteTodo(id) {
-            if (!confirm('Delete this task?')) return;
-            await api(`/api/todos/${id}`, 'DELETE');
-            loadTodos();
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/';
-        }
-    </script>
 </body>
 </html>
